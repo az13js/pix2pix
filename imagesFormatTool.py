@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: UTF-8 -*-
 
-# 将当前目录下的src内的图片文件整理成256x256px的图片，放入文件夹256x256内。
-# 然后重命名256x256文件夹下的文件以随机打乱文件。
-# 最后将256x256文件夹下的文件转换成黑白色放入blackwhite。
+# 将当前目录下的src内的图片文件整理成256x256px的图片，放入文件夹outputs内。
+# 然后重命名outputs文件夹下的文件以随机打乱文件。
+# 最后将outputs文件夹下的文件转换成黑白色放入inputs。
 
 import os
 import numpy
