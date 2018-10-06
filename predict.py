@@ -39,9 +39,9 @@ def getInputsOutputs():
     outputs = getParam("--outputs")
 
     if "" == inputs:
-        inputs = "inputs"
+        inputs = "predict" + os.sep + "src"
     if "" == outputs:
-        outputs = "outputs"
+        outputs = "predict" + os.sep + "dst"
     return inputs, outputs
 
 # 利用图像库读取图片并转换成张量，然后返回
@@ -117,3 +117,13 @@ print("Inputs number :", len(inputImages))
 # 加载模型
 print("Loading Pix2PixGenerator.tf.keras.model")
 generator = tf.keras.models.load_model('Pix2PixGenerator.tf.keras.model', compile=False)
+
+# 预测
+results = generator.predict(createGeneratorInputs(inputImages))
+
+# 保存
+deleteImages(outputs)
+name = 0
+for data in results:
+    name = name + 1
+    numpyToFile(data, outputs + os.sep + str(name) + ".png")
