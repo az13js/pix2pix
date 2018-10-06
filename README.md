@@ -28,8 +28,8 @@
 
     > 每次运行脚本时都会以随机顺序形成图片列表，所以不需要担心在中间中断后导致下次训练时又从开头训练。
 
-2. 使用模型转换run/inputs内的文件到run/outputs文件夹：
+2. 使用模型转换predict/src内的文件到predict/dst文件夹：
 
-        python predict.py --inputs=run/inputs --outputs=run/outputs
+        python predict.py --inputs=predict/src --outputs=predict/dst
 
 模型能处理的文件格式是固定的，参照**图片格式**的说明。受训练用的图片质量和数量影响，模型预测的结果可能不一样。受模型初始化参数和噪声输入的随机性影响，同样的数据训练出来的模型也存在一定程度的差异。
