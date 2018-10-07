@@ -9,6 +9,8 @@ import os
 import numpy
 from PIL import Image
 import random
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # 根据扩展名判断
 def isImage(file):

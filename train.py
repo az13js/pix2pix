@@ -7,6 +7,8 @@ import random
 import tensorflow as tf
 from PIL import Image
 import numpy
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def shuffle(a, b):
     if len(a) != len(b):
@@ -30,6 +32,12 @@ def shuffle(a, b):
 #(a, b) = (["a", "b", "c", "d"], ["A", "B", "C", "D"])
 #shuffle(a, b)
 #print(a, b)
+
+def hasParam(param):
+    for p in sys.argv:
+        if p == param:
+            return True
+    return False
 
 def getParam(param):
     for p in sys.argv:
@@ -238,6 +246,8 @@ print("outputs =", outputs)
 print("batch =" , batch)
 print("bcount =" , bcount)
 print("count =" , count)
+if hasParam("--disable-discriminator"):
+    print("another: --disable-discriminator")
 
 # 文件列表
 inputImages = getImageFileList(inputs)
@@ -251,37 +261,40 @@ print("Inputs-outputs number :", len(inputImages))
 # 加载模型
 print("Loading Pix2PixGenerator.tf.keras.model,Pix2PixDiscriminator.tf.keras.model,Pix2PixMix.tf.keras.model")
 generator = tf.keras.models.load_model('Pix2PixGenerator.tf.keras.model', compile=False)
-discriminator = tf.keras.models.load_model('Pix2PixDiscriminator.tf.keras.model', compile=False)
-mix = tf.keras.models.load_model('Pix2PixMix.tf.keras.model', compile=False)
+if False == hasParam("--disable-discriminator"):
+    discriminator = tf.keras.models.load_model('Pix2PixDiscriminator.tf.keras.model', compile=False)
+    mix = tf.keras.models.load_model('Pix2PixMix.tf.keras.model', compile=False)
 
 # 配置优化算法
 print("Compile")
 generator.compile(optimizer = tf.keras.optimizers.Adam(lr=0.0002, beta_1=0.5, beta_2=0.999), loss = "MSE")
-discriminator.compile(optimizer = tf.keras.optimizers.Adam(lr=0.0002, beta_1=0.5, beta_2=0.999), loss = "MSE")
-mix.compile(optimizer = tf.keras.optimizers.Adam(lr=0.0002, beta_1=0.5, beta_2=0.999), loss = "MSE")
+if False == hasParam("--disable-discriminator"):
+    discriminator.compile(optimizer = tf.keras.optimizers.Adam(lr=0.0002, beta_1=0.5, beta_2=0.999), loss = "MSE")
+    mix.compile(optimizer = tf.keras.optimizers.Adam(lr=0.0002, beta_1=0.5, beta_2=0.999), loss = "MSE")
 
 # 训练
 print("Train")
 for countidx in range(count):
-    print("count :", countidx + 1)
-    for bcidx in range(bcount):
-        print("batch count :", bcidx + 1)
-        start = 0
-        end = start + batch
-        while start < len(inputImages):
-            deleteImages("fake")
-            outputFileList = runGenerator(generator, inputImages[start : end], "fake")
+    start = 0
+    end = start + batch
+    while start < len(inputImages):
+        print("-------------count :", countidx + 1)
+        print("--------------pass :", start / len(inputImages))
+        deleteImages("fake")
+        outputFileList = runGenerator(generator, inputImages[start : end], "fake")
+        if False == hasParam("--disable-discriminator"):
             print("Train discriminator")
             trainDiscriminator(discriminator, bcount, [inputImages[start : end], outputImages[start : end]], [inputImages[start : end], outputFileList])
             addGD2Mix(generator, discriminator, mix)
             print("Train mix")
-            trainMix(mix, bcount, inputImages[start : end])
+            trainMix(mix, 8 * bcount, inputImages[start : end])
             separateMix(mix, generator)
-            print("Train generator")
-            trainGenerator(generator, bcount, inputImages[start : end], outputImages[start : end])
-            print("Save generator and discriminator")
-            tf.keras.models.save_model(generator, "Pix2PixGenerator.tf.keras.model", include_optimizer=False)
+        print("Train generator")
+        trainGenerator(generator, bcount, inputImages[start : end], outputImages[start : end])
+        print("Save generator and discriminator")
+        tf.keras.models.save_model(generator, "Pix2PixGenerator.tf.keras.model", include_optimizer=False)
+        if False == hasParam("--disable-discriminator"):
             tf.keras.models.save_model(discriminator, "Pix2PixDiscriminator.tf.keras.model", include_optimizer=False)
-            print("Ok")
-            start = end
-            end = start + batch
+        print("Ok")
+        start = end
+        end = start + batch

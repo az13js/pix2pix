@@ -7,6 +7,8 @@ import random
 import tensorflow as tf
 from PIL import Image
 import numpy
+from PIL import ImageFile
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def getParam(param):
     for p in sys.argv:
