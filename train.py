@@ -205,13 +205,13 @@ def trainDiscriminator(discriminator, count, trust, fake):
         data.append(numpy.concatenate((fileToNumpy(fake[0][k], 256, 256), fileToNumpy(fake[1][k], 256, 256)), axis = 2))
         label.append(numpy.zeros((16, 16, 1)))
     shuffle(data, label)
-    return discriminator.fit(numpy.array(data), numpy.array(label), len(label), count)
+    return discriminator.fit(numpy.array(data), numpy.array(label), 4, count)
 
 def trainMix(mix, count, inputs):
     label = []
     for file in inputs:
         label.append(numpy.ones((16, 16, 1)))
-    return mix.fit(createGeneratorInputs(inputs), numpy.array(label), len(label), count)
+    return mix.fit(createGeneratorInputs(inputs), numpy.array(label), 2, count)
 
 def separateMix(mix, generator):
     generatorWeights = []
@@ -235,7 +235,7 @@ def trainGenerator(generator, count, inputs, outputs):
     label = []
     for file in outputs:
         label.append(fileToNumpy(file, 256, 256))
-    return generator.fit(data, numpy.array(label), len(label), count)
+    return generator.fit(data, numpy.array(label), 2, count)
 
 # 参数
 (inputs, outputs) = getInputsOutputs()

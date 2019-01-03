@@ -110,8 +110,12 @@ def formateImagesRGBToLFrom(src, dst):
             if os.path.exists(filePath):
                 if os.path.isfile(filePath) and isImage(filePath):
                     # 这里读取filePath
-                    imageObject = Image.open(filePath).convert('L')
+                    imageObject = Image.open(filePath)
                     imageObject.load()
+                    w = imageObject.size[0]
+                    h = imageObject.size[1]
+                    imageObject = imageObject.resize((int(float(w) / 8), int(float(h) / 8)), Image.ANTIALIAS)
+                    imageObject = imageObject.resize((w, h), Image.NEAREST)
                     imageObject.save(dst + os.sep + file)
 
 # 重命名，打乱图片
