@@ -8,6 +8,8 @@ import tensorflow as tf
 from PIL import Image
 import numpy
 from PIL import ImageFile
+import time
+import shutil
 ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 def shuffle(a, b):
@@ -37,6 +39,11 @@ def hasParam(param):
     for p in sys.argv:
         if p == param:
             return True
+        else:
+            sub = p.split("=")
+            if len(sub) > 0:
+                if sub[0] == param:
+                    return True
     return False
 
 def getParam(param):
@@ -237,6 +244,31 @@ def trainGenerator(generator, count, inputs, outputs):
         label.append(fileToNumpy(file, 256, 256))
     return generator.fit(data, numpy.array(label), 2, count)
 
+def testGenerator(generator, inputs, outputs):
+    data = createGeneratorInputs(inputs)
+    label = []
+    for file in outputs:
+        label.append(fileToNumpy(file, 256, 256))
+    return generator.test_on_batch(data, numpy.array(label))
+
+def saveDatas(lossTrain, lossTest, isSaveModel = False):
+    logDir = getParam("--save")
+    if logDir == "":
+        logDir = "log"
+    timen = time.strftime("%Y-%m-%d_%H-%M-%S", time.localtime())
+    fileLog = logDir + os.sep + "log.csv"
+    print(fileLog)
+    write = False
+    if False == os.path.isfile(fileLog):
+        write = True
+    f = open(fileLog, "a")
+    if write:
+        f.write("Train,Test,Time\n")
+    f.write(str(lossTrain) + "," + str(lossTest) + "," + timen + "\n")
+    f.close()
+    if isSaveModel:
+        shutil.copy("Pix2PixGenerator.tf.keras.model", logDir + os.sep + "Pix2PixGenerator." + timen + ".tf.keras.model")
+
 # 参数
 (inputs, outputs) = getInputsOutputs()
 print("inputs =", inputs)
@@ -248,6 +280,10 @@ print("bcount =" , bcount)
 print("count =" , count)
 if hasParam("--disable-discriminator"):
     print("another: --disable-discriminator")
+if hasParam("--test"):
+    print("another: --test")
+if hasParam("--save"):
+    print("another: --save")
 
 # 文件列表
 inputImages = getImageFileList(inputs)
@@ -257,6 +293,17 @@ if len(inputImages) != len(outputImages):
     exit()
 shuffle(inputImages, outputImages)
 print("Inputs-outputs number :", len(inputImages))
+
+# 加载测试文件
+testSrc = []
+testDst = []
+testResult = 0
+if hasParam("--test"):
+    testSrc = getImageFileList("test" + os.sep + "src")
+    testDst = getImageFileList("test" + os.sep + "dst")
+    print("test inputs and test outputs:")
+    print(testSrc)
+    print(testDst)
 
 # 加载模型
 print("Loading Pix2PixGenerator.tf.keras.model,Pix2PixDiscriminator.tf.keras.model,Pix2PixMix.tf.keras.model")
@@ -290,11 +337,17 @@ for countidx in range(count):
             trainMix(mix, 8 * bcount, inputImages[start : end])
             separateMix(mix, generator)
         print("Train generator")
-        trainGenerator(generator, bcount, inputImages[start : end], outputImages[start : end])
+        trainResult = trainGenerator(generator, bcount, inputImages[start : end], outputImages[start : end])
         print("Save generator and discriminator")
         tf.keras.models.save_model(generator, "Pix2PixGenerator.tf.keras.model", include_optimizer=False)
         if False == hasParam("--disable-discriminator"):
             tf.keras.models.save_model(discriminator, "Pix2PixDiscriminator.tf.keras.model", include_optimizer=False)
         print("Ok")
+        if hasParam("--test"):
+            print("The loss of test inputs and test outputs:")
+            testResult = testGenerator(generator, testSrc, testDst)
+            print(testResult)
+        if hasParam("--save"):
+            saveDatas(trainResult.history["loss"][-1], testResult, True)
         start = end
         end = start + batch

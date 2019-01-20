@@ -39,3 +39,31 @@
 第一行是输入图片，第二行是算法学习后自动上色的，最后一行是原始图片。
 
 ![](color.jpg)
+
+## 其他可用的参数
+
+### ```--disable-discriminator```
+
+这个参数可以禁止训练 GAN 中的 discriminator 。
+
+### ```--test```
+
+带有 ```--test``` 参数，可以使用 ```test``` 文件夹内的文件作为测试集计算出损失值。
+
+### ```--save[=log]```
+
+保存训练过程中的参数变化和模型到 log 文件夹内（可以结合 ```--test``` 参数用）。就比如下面，其中参数顺序没有先后。
+
+    python train.py --batch=6 --bcount=2 --count=500 --test --disable-discriminator --save
+
+也可以指定另一个目录保存
+
+    python train.py --batch=6 --bcount=2 --count=500 --test --disable-discriminator --save=F:\log
+
+## 一些可能有用的脚本：
+
+1. imagesFormatTool.py 这个是将根目录 src 文件夹内的所有图片（任何尺寸）转换为所需的尺寸并保存到 inputs 和 outputs 文件夹内，以备训练。这个工具会自动去除彩色信息。
+2. imagesFormatTool-msk.py 这个工具与 imagesFormatTool.py 差不多，但是这个用来制造低分辨率图片。
+3. createTestSet.py 从 inputs 和 outputs 中取出一部分图片放入 test 文件夹作为测试集用。
+
+> 脚本会删除 inputs, outputs 和根目录的 src 相关的文件夹里的图片。如果需要请先备份好文件。建议不要将重要的文件放在代码文件夹里面。
