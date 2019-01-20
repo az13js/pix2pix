@@ -66,4 +66,4 @@
 2. imagesFormatTool-msk.py 这个工具与 imagesFormatTool.py 差不多，但是这个用来制造低分辨率图片。
 3. createTestSet.py 从 inputs 和 outputs 中取出一部分图片放入 test 文件夹作为测试集用。
 
-> 脚本会删除 inputs, outputs 和根目录的 src 相关的文件夹里的图片。如果需要请先备份好文件。建议不要将重要的文件放在代码文件夹里面。
+> 脚本会删除 inputs, outputs 和根目录的 test 相关的文件夹里的图片。如果需要请先备份好文件。建议不要将重要的文件放在代码文件夹里面。
