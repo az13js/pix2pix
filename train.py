@@ -321,6 +321,7 @@ if False == hasParam("--disable-discriminator"):
 
 # 训练
 print("Train")
+minTest = 100000
 for countidx in range(count):
     start = 0
     end = start + batch
@@ -348,6 +349,10 @@ for countidx in range(count):
             testResult = testGenerator(generator, testSrc, testDst)
             print(testResult)
         if hasParam("--save"):
-            saveDatas(trainResult.history["loss"][-1], testResult, True)
+            if (testResult < minTest):
+                minTest = testResult
+                saveDatas(trainResult.history["loss"][-1], testResult, True)
+            else:
+                saveDatas(trainResult.history["loss"][-1], testResult, False)
         start = end
         end = start + batch

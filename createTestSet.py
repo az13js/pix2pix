@@ -42,7 +42,7 @@ def getImageFileList(dir):
     return result
 
 # 移动文件数量
-moveNum = 4
+moveNum = 10
 
 # 输入文件夹和输出文件夹的位置
 inputs = "inputs"
